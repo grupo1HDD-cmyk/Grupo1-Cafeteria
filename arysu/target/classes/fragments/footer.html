@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    </head>
+<body>
+    <footer th:fragment="footer" class="bg-dark text-white py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 text-center text-md-start">
+                    <img th:src="@{/img/logo-white.png}" alt="Logo Aroma y Sueños" width="150" class="footer-logo mb-3"> 
+                    <div class="social-icons"> <a href="https://www.facebook.com/" target="_blank" aria-label="Facebook"><i class="bi bi-facebook fs-4"></i></a>
+                        <a href="https://www.instagram.com/" target="_blank" aria-label="Instagram"><i class="bi bi-instagram fs-4"></i></a>
+                        <a href="https://wa.me/51987654321" target="_blank" aria-label="WhatsApp"><i class="bi bi-whatsapp fs-4"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4 text-center text-md-start">
+                    <h5 class="fw-bold mb-3">Explorar</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/menu" class="text-decoration-none footer-link">Menú</a></li>
+                        <li class="mb-2"><a href="/galeria" class="text-decoration-none footer-link">Galería</a></li>
+                        <li class="mb-2"><a href="/contacto" class="text-decoration-none footer-link">Contacto</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-4 mb-4 text-center text-md-start">
+                    <h5 class="fw-bold mb-3">Contacto</h5>
+                    <p class="footer-contact-info"><i class="bi bi-geo-alt-fill me-2"></i> Av. Café 123, Lima</p>
+                    <p class="footer-contact-info"><i class="bi bi-telephone-fill me-2"></i> +51 987 654 321</p>
+                    <p class="footer-contact-info"><i class="bi bi-envelope-fill me-2"></i> contacto@aromaysuenos.com</p>
+                </div>
+            </div>
+            <hr class="my-4 footer-divider"> <p class="text-center mb-0 footer-copyright">© 2023 Aroma y Sueños. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>
