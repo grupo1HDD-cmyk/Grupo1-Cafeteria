@@ -1,0 +1,202 @@
+/* Variables de color */
+:root {
+    --color-fondo-header-footer: #2D2D2D; /* Un gris oscuro casi negro para fondo */
+    --color-texto-principal: #FFFFFF; /* Texto blanco para buena visibilidad */
+    --color-texto-secundario: #B0B0B0; /* Gris claro para texto menos prominente */
+    --color-resaltado: #D4A762; /* Dorado para el logo y elementos activos */
+    --color-boton-login: #8B5E3C; /* Café oscuro para el botón de login/iniciar sesión */
+    --color-boton-login-hover: #A9745F; /* Café claro para el hover del botón */
+}
+/* --- Header Styles --- */
+.bg-vintage-cafe {
+    /* Ajustado para un color más uniforme y oscuro como en la imagen */
+    background-color: var(--color-fondo-header-footer); 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+}
+
+/* Marca del Navbar (Logo y Nombre) */
+.navbar-brand {
+    color: var(--color-texto-principal) !important; /* Texto blanco para el nombre */
+    font-size: 1.8rem; /* Tamaño de fuente ajustado */
+    display: flex; /* Para alinear el logo y texto */
+    align-items: center;
+}
+
+.navbar-brand img {
+    filter: brightness(1.2); /* Ajusta brillo del logo si es necesario para contrastar con fondo oscuro */
+}
+
+
+/* Items de Navegación */
+.navbar-nav .nav-link {
+    color: var(--color-texto-principal); /* Color de texto blanco para los enlaces */
+    font-weight: 500;
+    margin-right: 15px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1); /* Fondo sutil al hover/activo */
+    color: var(--color-resaltado) !important; /* Color dorado para el activo o al pasar el ratón */
+}
+
+/* Botones de Carrito y Login */
+.btn-outline-light {
+    color: var(--color-texto-principal);
+    border-color: var(--color-texto-principal);
+}
+
+.btn-outline-light:hover {
+    background-color: var(--color-resaltado);
+    border-color: var(--color-resaltado);
+    color: var(--color-fondo-header-footer); /* Color oscuro del texto al hacer hover */
+}
+
+/* Botón de Iniciar Sesión */
+.btn-custom-primary {
+    background-color: var(--color-boton-login); /* Color café del botón */
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 20px; /* Bordes más redondeados */
+    transition: all 0.3s;
+    font-weight: bold;
+}
+
+.btn-custom-primary:hover {
+    background-color: var(--color-boton-login-hover); /* Café claro al hover */
+    transform: translateY(-2px); /* Pequeño efecto 3D */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+.logo-circular {
+    border-radius: 50%; /* Esto hace que la imagen sea circular */
+    object-fit: cover; /* Asegura que la imagen cubra el área sin distorsionarse */
+    width: 60px; /* ¡Ahora más grande! Debe coincidir con el HTML */
+    height: 60px; /* ¡Ahora más grande! Debe coincidir con el HTML */
+    /* Puedes añadir un pequeño borde si quieres, como en algunos logos circulares */
+    /* border: 2px solid var(--color-resaltado); */ 
+}
+
+/* Ajuste opcional para el tamaño de la fuente del título del navbar */
+.navbar-brand {
+    color: var(--color-texto-principal) !important;
+    font-size: 2.2rem; /* Puedes hacerlo más grande si lo deseas */
+    display: flex;
+    align-items: center;
+}
+/* Contador del carrito */
+#carrito-contador {
+    font-size: 0.7em;
+    vertical-align: super;
+}
+/* --- Footer Styles Mejorados --- */
+footer.bg-dark {
+    background-color: var(--color-fondo-header-footer) !important;
+    color: var(--color-texto-principal);
+    padding: 60px 0 40px; /* Más padding arriba y abajo */
+    font-size: 1rem; /* Ajustado el tamaño de fuente general */
+    border-top: 5px solid var(--color-resaltado); /* Pequeña línea dorada en la parte superior del footer */
+}
+
+footer h5 {
+    color: var(--color-resaltado); 
+    margin-bottom: 25px; /* Más espacio debajo de los títulos */
+    font-weight: 700; /* Más audaz */
+    font-size: 1.3rem; /* Títulos un poco más grandes */
+    position: relative; /* Para el posible subrayado animado */
+    padding-bottom: 5px; /* Espacio para el subrayado */
+}
+
+/* Subrayado sutil para títulos del footer */
+footer h5::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 50px; /* Ancho del subrayado */
+    height: 3px; /* Grosor del subrayado */
+    background-color: var(--color-resaltado);
+    border-radius: 5px;
+}
+/* Para centrar el subrayado en el texto centrado en móviles */
+@media (max-width: 767.98px) {
+    footer h5::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+
+/* Estilo del logo en el footer */
+.footer-logo {
+    filter: brightness(1.2); /* Aclarar el logo si es oscuro */
+    margin-bottom: 20px; /* Más espacio debajo del logo */
+    transition: transform 0.3s ease;
+}
+.footer-logo:hover {
+    transform: scale(1.05); /* Pequeño efecto al pasar el ratón */
+}
+
+
+/* Iconos de Redes Sociales */
+.social-icons a {
+    color: var(--color-texto-principal); /* Iconos blancos */
+    margin: 0 10px; /* Espacio entre iconos */
+    font-size: 2rem; /* Iconos más grandes */
+    transition: color 0.3s ease, transform 0.2s ease;
+    display: inline-block; /* Para aplicar transformaciones */
+}
+
+.social-icons a:hover {
+    color: var(--color-resaltado); /* Iconos en dorado al hover */
+    transform: translateY(-3px) scale(1.1); /* Efecto de levitación y crecimiento */
+}
+
+/* Enlaces del Footer (Explorar) */
+.footer-link {
+    color: var(--color-texto-secundario);
+    transition: color 0.3s ease;
+    padding-left: 0; /* Asegurar que no haya padding extra de Bootstrap en ul li */
+}
+
+.footer-link:hover {
+    color: var(--color-resaltado);
+    padding-left: 5px; /* Pequeño desplazamiento al pasar el ratón */
+}
+
+/* Información de Contacto */
+.footer-contact-info {
+    color: var(--color-texto-secundario);
+    margin-bottom: 12px; /* Más espacio entre líneas de contacto */
+    display: flex; /* Para alinear icono y texto */
+    align-items: center;
+    justify-content: center; /* Centrar en móvil */
+}
+/* Alinear a la izquierda en desktop */
+@media (min-width: 768px) {
+    .footer-contact-info {
+        justify-content: flex-start;
+    }
+}
+.footer-contact-info i {
+    color: var(--color-resaltado); /* Iconos de contacto en dorado */
+    font-size: 1.1em;
+    margin-right: 10px;
+}
+
+
+/* Línea divisoria */
+.footer-divider {
+    border-color: rgba(255, 255, 255, 0.1); /* Más sutil */
+    margin-top: 40px; /* Más espacio antes de la línea */
+    margin-bottom: 25px; /* Más espacio después de la línea */
+}
+
+/* Texto de derechos de autor */
+.footer-copyright {
+    color: var(--color-texto-secundario) !important;
+    font-size: 0.9rem; /* Un poco más grande y claro */
+}
