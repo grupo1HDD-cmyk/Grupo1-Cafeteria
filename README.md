@@ -10,8 +10,8 @@ Sistema web para gestión de cafetería desarrollado con **Spring Boot**.
 
 | Integrante | Código |
 | :--- | :--- |
-| [Tu nombre] | [Tu código] |
-| [Compañero] | [Código] |
+| [Paz Mendoza Mitsy Sharon] | [U22300556] |
+| [Ulloa Mucha Jose Isaac] | [U22317490] |
 
 ---
 
