@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title th:text="${title} ?: 'Gestión de Productos'"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        :root {
+            --color-cafe-oscuro: #6f4e37; /* Marrón oscuro para el café */
+            --color-cafe-claro: #a07a57; /* Marrón claro */
+            --color-crema: #f5f5dc;      /* Color crema de fondo */
+            --color-dorado: #d4af37;     /* Dorado para acentos */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--color-crema);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Estilos del Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--color-cafe-oscuro);
+            color: white;
+            padding-top: 20px;
+            flex-shrink: 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .sidebar .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--color-dorado) !important;
+            padding-left: 20px;
+            margin-bottom: 20px;
+            display: block;
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--color-cafe-claro);
+            color: white;
+            border-radius: 5px;
+        }
+        .sidebar .nav-link.active {
+            font-weight: bold;
+        }
+        .sidebar-heading {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 10px 20px;
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar .user-info {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .sidebar .user-info i {
+            font-size: 2.5rem;
+            color: var(--color-dorado);
+            margin-bottom: 5px;
+        }
+        .sidebar .user-info p {
+            margin-bottom: 0;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .sidebar .logout-form {
+            margin-top: 30px;
+            padding: 0 20px;
+        }
+        .sidebar .logout-form button {
+            width: 100%;
+            background-color: #dc3545; /* Rojo de Bootstrap para peligro */
+            border-color: #dc3545;
+        }
+        .sidebar .logout-form button:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        /* Estilos del Contenido Principal */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--color-cafe-oscuro) 0%, var(--color-cafe-claro) 100%);
+            border-bottom: 5px solid var(--color-dorado);
+        }
+
+        /* Estilos específicos de la tabla de productos */
+        .table img {
+            max-width: 80px;
+            max-height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .table thead th {
+            background-color: var(--color-cafe-claro);
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .table tbody tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+        .table tbody tr:hover {
+            background-color: #f0f0f0;
+        }
+        .btn-accion {
+            margin-right: 5px;
+        }
+
+        /* Estilos para el formulario en el modal */
+        .form-card {
+            background-color: white;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--color-cafe-claro);
+            box-shadow: 0 0 0 0.25rem rgba(160, 122, 87, 0.25);
+        }
+        .btn-primary-form {
+            background-color: var(--color-cafe-claro);
+            border-color: var(--color-cafe-claro);
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary-form:hover {
+            background-color: #8c6a4e;
+            border-color: #8c6a4e;
+        }
+        .btn-secondary-form {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            transition: background-color 0.3s ease;
+        }
+        .btn-secondary-form:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .img-preview {
+            max-width: 150px;
+            max-height: 150px;
+            object-fit: contain;
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: block;
+        }
+        .img-preview-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                padding-bottom: 0;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            }
+            .sidebar .navbar-brand {
+                text-align: center;
+                padding: 15px 0;
+            }
+            .sidebar .user-info {
+                display: none;
+            }
+            .sidebar .nav {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .sidebar .nav-item {
+                flex: 1 1 auto;
+                text-align: center;
+            }
+            .sidebar .nav-link {
+                padding: 10px 5px;
+                justify-content: center;
+            }
+            .sidebar .nav-link i {
+                margin-right: 5px;
+            }
+            .sidebar-heading {
+                text-align: center;
+            }
+            .sidebar .logout-form {
+                padding: 10px;
+            }
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <a class="navbar-brand" th:href="@{/admin}">Aroma y Sueños <br><small style="font-size: 0.8em;">Admin Panel</small></a>
+        
+        <div sec:authorize="isAuthenticated()" class="user-info">
+            <i class="bi bi-person-circle"></i>
+            <p>Bienvenido, <span sec:authentication="principal.displayName">Admin</span></p>
+        </div>
+
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin}">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" th:href="@{/admin/productos}">
+                    <i class="bi bi-cup-hot"></i> Productos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/pedidos}">
+                    <i class="bi bi-receipt"></i> Pedidos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/usuarios}">
+                    <i class="bi bi-people"></i> Usuarios
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/categorias}">
+                    <i class="bi bi-tag"></i> Categorías
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/reportes}">
+                    <i class="bi bi-graph-up"></i> Reportes
+                </a>
+            </li>
+        </ul>
+
+        <div class="logout-form">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="admin-header bg-cafe-gradient text-white py-4 mb-4 rounded-3">
+            <div class="container-fluid">
+                <h1 class="display-5 fw-bold"><i class="bi bi-cup-hot-fill me-2"></i>Gestión de Productos</h1>
+                <p class="lead">Añade, edita y elimina productos de tu menú.</p>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${validationErrors}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>Errores de validación:</strong> <span th:text="${validationErrors}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div class="d-flex justify-content-end mb-3">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#productFormModal" id="newProductBtn">
+                    <i class="bi bi-plus-circle"></i> Nuevo Producto
+                </button>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Listado de Productos</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Imagen</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Precio</th>
+                                    <th>Categoría</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="producto : ${productos}">
+                                    <td th:text="${producto.id}">1</td>
+                                    <td>
+                                        <img th:src="${producto.imagenUrl}" 
+                                             th:alt="${producto.nombre}" 
+                                             class="img-fluid" 
+                                             onerror="this.onerror=null;this.src='/img/placeholder.png';" />
+                                    </td>
+                                    <td th:text="${producto.nombre}">Café Americano</td>
+                                    <td th:text="${producto.descripcion}">Delicioso café...</td>
+                                    <td>S/ <span th:text="${#numbers.formatDecimal(producto.precio, 1, 2)}">10.00</span></td>
+                                    <td th:text="${producto.categoria != null ? producto.categoria.nombre : 'Sin Categoría'}">Bebidas</td>
+                                    <td>
+                                        <button type="button" class="btn btn-info btn-sm btn-accion edit-product-btn" 
+                                                data-bs-toggle="modal" data-bs-target="#productFormModal" 
+                                                th:data-product-id="${producto.id}"
+                                                title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-sm btn-accion" 
+                                                data-bs-toggle="modal" data-bs-target="#deleteProductModal" 
+                                                th:data-product-id="${producto.id}" 
+                                                th:data-product-name="${producto.nombre}"
+                                                title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(productos)}">
+                                    <td colspan="7" class="text-center text-muted py-4">No hay productos registrados.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteProductModalLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que quieres eliminar el producto "<strong id="productToDeleteName"></strong>"? Esta acción no se puede deshacer.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form th:action="@{/admin/producto/eliminar}" method="get" style="display: inline;">
+                        <input type="hidden" name="id" id="productToDeleteId" value="">
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="productFormModal" tabindex="-1" aria-labelledby="productFormModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productFormModalLabel">
+                        <span id="modalTitleText"></span> Producto
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm" th:action="@{/admin/producto/guardar}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" id="productId" name="id" value="" /> <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre del Producto</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                            <div class="invalid-feedback" id="nombreError"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required></textarea>
+                            <div class="invalid-feedback" id="descripcionError"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="precio" class="form-label">Precio (S/)</label>
+                            <input type="number" step="0.01" class="form-control" id="precio" name="precio" required>
+                            <div class="invalid-feedback" id="precioError"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="categoriaId" class="form-label">Categoría</label>
+                            <select class="form-select" id="categoriaId" name="categoria.id" required>
+                                <option value="">Selecciona una categoría</option>
+                                <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}"></option>
+                            </select>
+                            <div class="invalid-feedback" id="categoriaIdError"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="imagenFile" class="form-label">Imagen del Producto</label>
+                            <input type="file" class="form-control" id="imagenFile" name="imagenFile" accept="image/*">
+                            <div class="invalid-feedback" id="imagenFileError"></div>
+                            <small class="form-text text-muted">Deja en blanco para mantener la imagen actual (solo en edición).</small>
+                            
+                            <label class="img-preview-label mt-2" id="currentImageLabel" style="display: none;">Imagen Actual:</label>
+                            <img id="currentImagePreview" src="#" alt="Previsualización de imagen" class="img-preview" style="display: none;" onerror="this.onerror=null;this.src='/img/placeholder.png';"/>
+                            
+                            <label class="img-preview-label mt-2" id="newImageLabel" style="display: none;">Nueva Imagen:</label>
+                            <img id="newImagePreview" src="#" alt="Previsualización de nueva imagen" class="img-preview" style="display: none;"/>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-primary-form btn-lg">
+                                <i class="bi bi-save"></i> <span id="submitBtnText">Guardar Producto</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary-form btn-lg" data-bs-dismiss="modal">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Modal de Eliminación (sin cambios) ---
+            var deleteProductModal = document.getElementById('deleteProductModal');
+            deleteProductModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget; 
+                var productId = button.getAttribute('data-product-id');
+                var productName = button.getAttribute('data-product-name');
+
+                var modalBodyInputName = deleteProductModal.querySelector('#productToDeleteName');
+                var modalFormInputId = deleteProductModal.querySelector('#productToDeleteId');
+                var modalForm = deleteProductModal.querySelector('form');
+
+                modalBodyInputName.textContent = productName;
+                modalFormInputId.value = productId;
+                // Asegúrate de que '/aromaysuenos' sea la ruta base correcta de tu aplicación si la tienes configurada.
+                // Si tu aplicación se ejecuta directamente en la raíz (ej. localhost:8080/), entonces quita '/aromaysuenos'.
+                modalForm.action = '/aromaysuenos/admin/producto/eliminar/' + productId; 
+            });
+
+            // --- Modal de Añadir/Editar Producto ---
+            var productFormModal = document.getElementById('productFormModal');
+            var productForm = document.getElementById('productForm');
+            var modalTitleText = document.getElementById('modalTitleText');
+            var submitBtnText = document.getElementById('submitBtnText');
+            var productIdInput = document.getElementById('productId');
+            var nombreInput = document.getElementById('nombre');
+            var descripcionInput = document.getElementById('descripcion');
+            var precioInput = document.getElementById('precio');
+            // var stockInput = document.getElementById('stock'); // Campo 'stock' ELIMINADO
+            var categoriaIdSelect = document.getElementById('categoriaId');
+            var imagenFileInput = document.getElementById('imagenFile');
+            var currentImagePreview = document.getElementById('currentImagePreview');
+            var newImagePreview = document.getElementById('newImagePreview');
+            var currentImageLabel = document.getElementById('currentImageLabel');
+            var newImageLabel = document.getElementById('newImageLabel');
+
+            // Función para limpiar el formulario
+            function clearProductForm() {
+                productForm.reset();
+                productIdInput.value = '';
+                nombreInput.classList.remove('is-invalid');
+                descripcionInput.classList.remove('is-invalid');
+                precioInput.classList.remove('is-invalid');
+                // stockInput.classList.remove('is-invalid'); // Campo 'stock' ELIMINADO
+                categoriaIdSelect.classList.remove('is-invalid');
+                imagenFileInput.classList.remove('is-invalid');
+
+                document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+
+                currentImagePreview.style.display = 'none';
+                newImagePreview.style.display = 'none';
+                newImagePreview.src = '#';
+                currentImageLabel.style.display = 'none';
+                newImageLabel.style.display = 'none';
+            }
+
+            // Manejar clic en "Nuevo Producto"
+            document.getElementById('newProductBtn').addEventListener('click', function() {
+                clearProductForm();
+                modalTitleText.textContent = 'Nuevo';
+                submitBtnText.textContent = 'Guardar Producto';
+                imagenFileInput.required = true;
+            });
+
+            // Manejar clic en "Editar Producto"
+            document.querySelectorAll('.edit-product-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    clearProductForm();
+                    modalTitleText.textContent = 'Editar';
+                    submitBtnText.textContent = 'Actualizar Producto';
+                    imagenFileInput.required = false;
+
+                    var productId = this.getAttribute('data-product-id');
+                    productIdInput.value = productId;
+
+                    // Realizar llamada AJAX para obtener los datos del producto
+                    // Asegúrate de que '/aromaysuenos' sea la ruta base correcta de tu aplicación si la tienes configurada.
+                    fetch('/aromaysuenos/admin/api/productos/' + productId)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok ' + response.statusText);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Rellenar el formulario con los datos del producto
+                            nombreInput.value = data.nombre;
+                            descripcionInput.value = data.descripcion;
+                            precioInput.value = data.precio;
+                            // stockInput.value = data.stock; // Campo 'stock' ELIMINADO
+                            categoriaIdSelect.value = data.categoria ? data.categoria.id : '';
+                            
+                            if (data.imagenUrl) {
+                                currentImagePreview.src = data.imagenUrl;
+                                currentImagePreview.style.display = 'block';
+                                currentImageLabel.style.display = 'block';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar datos del producto:', error);
+                            alert('Error al cargar los datos del producto para edición.');
+                            var productFormModalInstance = bootstrap.Modal.getInstance(productFormModal);
+                            if (productFormModalInstance) {
+                                productFormModalInstance.hide();
+                            }
+                        });
+                });
+            });
+
+            // Previsualización de la imagen al seleccionar un archivo (sin cambios, solo se adapta a la eliminación de stock)
+            imagenFileInput.addEventListener('change', function(event) {
+                var file = event.target.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        newImagePreview.src = e.target.result;
+                        newImagePreview.style.display = 'block';
+                        newImageLabel.style.display = 'block';
+                        currentImagePreview.style.display = 'none';
+                        currentImageLabel.style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    newImagePreview.style.display = 'none';
+                    newImagePreview.src = '#';
+                    newImageLabel.style.display = 'none';
+                    // Si se deselecciona un archivo, mostrar la imagen actual si existe y es edición
+                    // Asegúrate de que '/aromaysuenos' sea la ruta base correcta.
+                    if (productIdInput.value && currentImagePreview.src && currentImagePreview.src !== window.location.origin + '/aromaysuenos/#') {
+                        currentImagePreview.style.display = 'block';
+                        currentImageLabel.style.display = 'block';
+                    }
+                }
+            });
+
+            // Lógica para reabrir el modal con errores de validación (si se redirige)
+            // Esto sigue siendo una solución básica. Para una experiencia más fluida,
+            // considera usar AJAX para el envío del formulario también.
+            var validationErrors = /*[[${validationErrors}]]*/ null;
+            if (validationErrors) {
+                var productFormModalInstance = new bootstrap.Modal(productFormModal);
+                productFormModalInstance.show();
+                // Aquí podrías rellenar los campos con los valores anteriores si los pasas
+                // como flash attributes junto con los errores.
+            }
+        });
+    </script>
+</body>
+</html>
