@@ -109,7 +109,7 @@ Para configurar y ejecutar el proyecto localmente, sigue estos pasos:
 
 El seguimiento del proyecto se realiza mediante Trello:
 
-* **Tablero Trello:** [Link a tu tablero]
+* **Tablero Trello:** [[Link a tu tablero](https://trello.com/invite/b/68f9dcc50eb4bc3ab0c54d93/ATTI8453fa81dbc3c06e628df6eeb5e32caa1719D058/avance-de-proyecto-final-2)]
 
 ---
 
