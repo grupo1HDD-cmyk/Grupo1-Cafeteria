@@ -25,7 +25,7 @@ public class AuthController {
     }
 
     // Formulario de login
-    @GetMapping("/ingresar")
+    @GetMapping("/login")
     public String loginForm(Model model, HttpServletRequest request) { // ¡Añade HttpServletRequest request aquí!
         model.addAttribute("usuario", new Usuario());
         model.addAttribute("title", "Iniciar Sesión");
@@ -35,7 +35,7 @@ public class AuthController {
     }
 
     // Formulario de registro
-    @GetMapping("/registrar")
+    @GetMapping("/registro")
     public String registroForm(Model model, HttpServletRequest request) { // ¡Añade HttpServletRequest request aquí!
         model.addAttribute("usuario", new Usuario());
         model.addAttribute("title", "Registrarse");
