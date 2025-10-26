@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title th:text="${title} ?: 'Gestión de Pedidos'"></title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- CSS Personalizado (copiado de dashboard.html y productos.html) -->
+    <style>
+        :root {
+            --color-cafe-oscuro: #6f4e37; /* Marrón oscuro para el café */
+            --color-cafe-claro: #a07a57; /* Marrón claro */
+            --color-crema: #f5f5dc;      /* Color crema de fondo */
+            --color-dorado: #d4af37;     /* Dorado para acentos */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--color-crema);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Estilos del Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--color-cafe-oscuro);
+            color: white;
+            padding-top: 20px;
+            flex-shrink: 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .sidebar .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--color-dorado) !important;
+            padding-left: 20px;
+            margin-bottom: 20px;
+            display: block;
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--color-cafe-claro);
+            color: white;
+            border-radius: 5px;
+        }
+        .sidebar .nav-link.active {
+            font-weight: bold;
+        }
+        .sidebar-heading {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 10px 20px;
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar .user-info {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .sidebar .user-info i {
+            font-size: 2.5rem;
+            color: var(--color-dorado);
+            margin-bottom: 5px;
+        }
+        .sidebar .user-info p {
+            margin-bottom: 0;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .sidebar .logout-form {
+            margin-top: 30px;
+            padding: 0 20px;
+        }
+        .sidebar .logout-form button {
+            width: 100%;
+            background-color: #dc3545; /* Rojo de Bootstrap para peligro */
+            border-color: #dc3545;
+        }
+        .sidebar .logout-form button:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        /* Estilos del Contenido Principal */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--color-cafe-oscuro) 0%, var(--color-cafe-claro) 100%);
+            border-bottom: 5px solid var(--color-dorado);
+        }
+
+        /* Estilos específicos de la tabla de pedidos */
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .table thead th {
+            background-color: var(--color-cafe-claro);
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .table tbody tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+        .table tbody tr:hover {
+            background-color: #f0f0f0;
+        }
+        .btn-accion {
+            margin-right: 5px;
+        }
+        .estado-badge {
+            padding: .35em .65em;
+            border-radius: .375rem;
+            font-size: .75em;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+        }
+        .estado-PENDIENTE { background-color: #ffc107; color: #343a40; } /* Amarillo */
+        .estado-EN_PREPARACION { background-color: #0dcaf0; } /* Azul claro */
+        .estado-ENVIADO { background-color: #0d6efd; } /* Azul */
+        .estado-COMPLETADO { background-color: #198754; } /* Verde */
+        .estado-CANCELADO { background-color: #dc3545; } /* Rojo */
+
+        /* Estilos para el modal de detalles del pedido */
+        .modal-body .detalle-item {
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+        .modal-body .detalle-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .modal-body .detalle-item img {
+            max-width: 50px;
+            height: auto;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                padding-bottom: 0;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            }
+            .sidebar .navbar-brand {
+                text-align: center;
+                padding: 15px 0;
+            }
+            .sidebar .user-info {
+                display: none;
+            }
+            .sidebar .nav {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .sidebar .nav-item {
+                flex: 1 1 auto;
+                text-align: center;
+            }
+            .sidebar .nav-link {
+                padding: 10px 5px;
+                justify-content: center;
+            }
+            .sidebar .nav-link i {
+                margin-right: 5px;
+            }
+            .sidebar-heading {
+                text-align: center;
+            }
+            .sidebar .logout-form {
+                padding: 10px;
+            }
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar (copia del dashboard) -->
+    <div class="sidebar">
+        <a class="navbar-brand" th:href="@{/admin}">Aroma y Sueños <br><small style="font-size: 0.8em;">Admin Panel</small></a>
+        
+        <div sec:authorize="isAuthenticated()" class="user-info">
+            <i class="bi bi-person-circle"></i>
+            <p>Bienvenido, <span sec:authentication="principal.displayName">Admin</span></p>
+        </div>
+
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin}">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/productos}">
+                    <i class="bi bi-cup-hot"></i> Productos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" th:href="@{/admin/pedidos}">
+                    <i class="bi bi-receipt"></i> Pedidos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/usuarios}">
+                    <i class="bi bi-people"></i> Usuarios
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/categorias}">
+                    <i class="bi bi-tag"></i> Categorías
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/reportes}">
+                    <i class="bi bi-graph-up"></i> Reportes
+                </a>
+            </li>
+        </ul>
+
+        <div class="logout-form">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <div class="admin-header bg-cafe-gradient text-white py-4 mb-4 rounded-3">
+            <div class="container-fluid">
+                <h1 class="display-5 fw-bold"><i class="bi bi-receipt-cutoff me-2"></i>Gestión de Pedidos</h1>
+                <p class="lead">Revisa y gestiona todos los pedidos de tus clientes.</p>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <!-- Mensajes Flash (éxito/error) -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Listado de Pedidos</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Usuario</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Dirección</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="pedido : ${pedidos}">
+                                    <td th:text="${pedido.id}">1</td>
+                                    <td th:text="${pedido.usuario != null ? pedido.usuario.nombres + ' ' + pedido.usuario.apellidos : 'N/A'}">Juan Pérez</td>
+                                    <td th:text="${#temporals.format(pedido.fecha, 'dd-MM-yyyy HH:mm')}">2024-07-25 10:30</td>
+                                    <td>S/ <span th:text="${#numbers.formatDecimal(pedido.total, 1, 2)}">50.00</span></td>
+                                    <td>
+                                        <span class="estado-badge" th:classappend="'estado-' + ${pedido.estado}" th:text="${pedido.estado}">PENDIENTE</span>
+                                    </td>
+                                    <td th:text="${pedido.direccionEntrega}">Calle Falsa 123</td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary btn-sm btn-accion view-details-btn" 
+                                                data-bs-toggle="modal" data-bs-target="#pedidoDetailsModal" 
+                                                th:data-pedido-id="${pedido.id}"
+                                                title="Ver Detalles">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-warning btn-sm btn-accion update-status-btn" 
+                                                data-bs-toggle="modal" data-bs-target="#updateStatusModal" 
+                                                th:data-pedido-id="${pedido.id}" 
+                                                th:data-current-status="${pedido.estado}"
+                                                title="Actualizar Estado">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(pedidos)}">
+                                    <td colspan="7" class="text-center text-muted py-4">No hay pedidos registrados.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Ver Detalles del Pedido -->
+    <div class="modal fade" id="pedidoDetailsModal" tabindex="-1" aria-labelledby="pedidoDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pedidoDetailsModalLabel">Detalles del Pedido #<span id="detailPedidoId"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Usuario:</strong> <span id="detailUsuarioNombre"></span> (<span id="detailUsuarioEmail"></span>)</p>
+                    <p><strong>Fecha:</strong> <span id="detailFecha"></span></p>
+                    <p><strong>Estado:</strong> <span id="detailEstado" class="estado-badge"></span></p>
+                    <p><strong>Dirección de Entrega:</strong> <span id="detailDireccion"></span></p>
+                    <p><strong>Total del Pedido:</strong> S/ <span id="detailTotal"></span></p>
+                    <hr>
+                    <h6>Productos:</h6>
+                    <ul class="list-group list-group-flush" id="detailProductosList">
+                        <!-- Los detalles de los productos se cargarán aquí con JS -->
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Actualizar Estado del Pedido -->
+    <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateStatusModalLabel">Actualizar Estado del Pedido #<span id="updatePedidoId"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateStatusForm" th:action="@{/admin/pedidos/actualizar-estado}" method="post">
+                        <input type="hidden" name="id" id="statusPedidoId">
+                        <div class="mb-3">
+                            <label for="newStatus" class="form-label">Nuevo Estado</label>
+                            <select class="form-select" id="newStatus" name="estado" required>
+                                <option th:each="estado : ${estadosPedido}" 
+                                        th:value="${estado}" 
+                                        th:text="${estado.displayName ?: estado.name().replace('_', ' ')}"
+                                        th:selected="${estado == currentStatus}">PENDIENTE</option>
+                            </select>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS y Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script para manejar los modales de pedidos -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Modal de Detalles del Pedido ---
+            var pedidoDetailsModal = document.getElementById('pedidoDetailsModal');
+            pedidoDetailsModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget; 
+                var pedidoId = button.getAttribute('data-pedido-id');
+
+                // Limpiar lista de productos antes de cargar nuevos
+                var detailProductosList = document.getElementById('detailProductosList');
+                detailProductosList.innerHTML = '';
+
+                // Actualizar ID en el título del modal
+                document.getElementById('detailPedidoId').textContent = pedidoId;
+
+                // Realizar llamada AJAX para obtener los datos del pedido
+                // Asegúrate de que '/aromaysuenos' sea la ruta base correcta de tu aplicación
+                fetch('/aromaysuenos/admin/api/pedidos/' + pedidoId)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Rellenar los campos del modal
+                        document.getElementById('detailUsuarioNombre').textContent = data.usuario ? (data.usuario.nombres + ' ' + data.usuario.apellidos) : 'N/A';
+                        document.getElementById('detailUsuarioEmail').textContent = data.usuario ? data.usuario.email : 'N/A';
+                        document.getElementById('detailFecha').textContent = new Date(data.fecha).toLocaleString(); // Formatear fecha
+                        
+                        var estadoBadge = document.getElementById('detailEstado');
+                        estadoBadge.textContent = data.estado.replace(/_/g, ' '); // Reemplazar guiones bajos para mejor lectura
+                        estadoBadge.className = 'estado-badge estado-' + data.estado; // Aplicar clase de estilo
+                        
+                        document.getElementById('detailDireccion').textContent = data.direccionEntrega;
+                        document.getElementById('detailTotal').textContent = parseFloat(data.total).toFixed(2);
+
+                        // Cargar detalles de productos
+                        if (data.detalles && data.detalles.length > 0) {
+                            data.detalles.forEach(detalle => {
+                                var listItem = document.createElement('li');
+                                listItem.className = 'list-group-item d-flex align-items-center detalle-item';
+                                
+                                var imgUrl = detalle.producto && detalle.producto.imagenUrl ? detalle.producto.imagenUrl : '/img/placeholder.png';
+                                var productName = detalle.producto ? detalle.producto.nombre : 'Producto Desconocido';
+                                
+                                listItem.innerHTML = `
+                                    <img src="${imgUrl}" alt="${productName}" class="img-fluid me-2" onerror="this.onerror=null;this.src='/img/placeholder.png';"/>
+                                    <div>
+                                        <strong>${productName}</strong><br>
+                                        Cantidad: ${detalle.cantidad} x S/ ${parseFloat(detalle.precioUnitario).toFixed(2)} = S/ ${parseFloat(detalle.cantidad * detalle.precioUnitario).toFixed(2)}
+                                    </div>
+                                `;
+                                detailProductosList.appendChild(listItem);
+                            });
+                        } else {
+                            var listItem = document.createElement('li');
+                            listItem.className = 'list-group-item text-muted';
+                            listItem.textContent = 'No hay productos en este pedido.';
+                            detailProductosList.appendChild(listItem);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar datos del pedido:', error);
+                        alert('Error al cargar los detalles del pedido.');
+                        var modalInstance = bootstrap.Modal.getInstance(pedidoDetailsModal);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+                    });
+            });
+
+            // --- Modal para Actualizar Estado del Pedido ---
+            var updateStatusModal = document.getElementById('updateStatusModal');
+            updateStatusModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var pedidoId = button.getAttribute('data-pedido-id');
+                var currentStatus = button.getAttribute('data-current-status');
+
+                document.getElementById('updatePedidoId').textContent = pedidoId;
+                document.getElementById('statusPedidoId').value = pedidoId;
+                document.getElementById('newStatus').value = currentStatus; // Seleccionar el estado actual
+                
+                // Actualizar la acción del formulario con la ID correcta
+                // Asegúrate de que '/aromaysuenos' sea la ruta base correcta de tu aplicación
+                document.getElementById('updateStatusForm').action = '/aromaysuenos/admin/pedidos/actualizar-estado/' + pedidoId;
+            });
+        });
+    </script>
+</body>
+</html>
