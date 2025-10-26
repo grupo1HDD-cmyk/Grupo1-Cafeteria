@@ -25,7 +25,7 @@ public class AuthController {
     }
 
     // Formulario de login
-    @GetMapping("/login")
+    @GetMapping("/ingreso")
     public String loginForm(Model model, HttpServletRequest request) { // ¡Añade HttpServletRequest request aquí!
         model.addAttribute("usuario", new Usuario());
         model.addAttribute("title", "Iniciar Sesión");
@@ -35,7 +35,7 @@ public class AuthController {
     }
 
     // Formulario de registro
-    @GetMapping("/registro")
+    @GetMapping("/registros")
     public String registroForm(Model model, HttpServletRequest request) { // ¡Añade HttpServletRequest request aquí!
         model.addAttribute("usuario", new Usuario());
         model.addAttribute("title", "Registrarse");
@@ -44,33 +44,5 @@ public class AuthController {
         return "fragments/layout";
     }
 
-    // Procesar registro (este método no necesita HttpServletRequest porque redirige)
-    @PostMapping("/registro")
-    public String registrarUsuario(
-            @Valid @ModelAttribute Usuario usuario,
-            BindingResult result,
-            Model model) {
 
-        if (result.hasErrors()) {
-            model.addAttribute("title", "Registrarse");
-            model.addAttribute("content", "auth/registro");
-            // Puedes añadir el requestURI aquí también, aunque generalmente un POST con errores
-            // vuelve a la misma página y el requestURI no cambia mucho.
-            // Si el layout lo necesita, agrégalo:
-            // model.addAttribute("requestURI", request.getRequestURI()); // Tendrías que inyectar request aquí también
-            return "fragments/layout";
-        }
-
-        if (usuarioService.existsByEmail(usuario.getEmail())) {
-            model.addAttribute("error", "El correo ya está registrado");
-            model.addAttribute("title", "Registrarse");
-            model.addAttribute("content", "auth/registro");
-            // Si el layout lo necesita, agrégalo:
-            // model.addAttribute("requestURI", request.getRequestURI()); // Tendrías que inyectar request aquí también
-            return "fragments/layout";
-        }
-        usuario.setRol(Rol.USER);
-        usuarioService.registrarUsuario(usuario);
-        return "redirect:/auth/login?registroExitoso";
-    }
 }
